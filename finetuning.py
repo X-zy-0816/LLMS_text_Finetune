@@ -10,6 +10,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
 HF_TOKEN = config["hugging_face_token"]
 MODEL_NAME = config["model_names"]["m7b"] 
 DATAPATH = config["data_path"]
+PEFTMODEL = config["PEFT_MODEL"]
 max_seq_length = config["max_seq_length"]
 
 
@@ -141,8 +142,6 @@ if __name__ == "__main__":
 
     # model.save_pretrained("trained-model")
 
-    PEFT_MODEL = config_path["PEFT_MODEL"]
-
     model.push_to_hub(
-            PEFT_MODEL, use_auth_token=True
+            PEFTMODEL, use_auth_token=True
     )

@@ -163,6 +163,7 @@ if __name__ == "__main__":
 
     dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
 
+    model.config.gradient_checkpointing = True
 
     trainer = SFTTrainer(
         model = model,

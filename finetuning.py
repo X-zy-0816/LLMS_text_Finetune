@@ -1,5 +1,7 @@
+
 import json
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
 from pprint import pprint # pretty print
 import bitsandbytes as bnb # custom module for quantization and optimization
 import torch
@@ -103,9 +105,9 @@ if __name__ == "__main__":
     config = load_config("config.json")
 
     # os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
+
     HF_TOKEN = config["hugging_face_token"]
-    MODEL_NAME = config["model_names"]["m3b"] 
+    MODEL_NAME = config["model_names"]["m7b"] 
     DATAPATH = config["data_path"]
     max_seq_length = config["max_seq_length"]
 

@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
     # model.save_pretrained("trained-model")
 
-    PEFT_MODEL = config["PEFT_MODEL"]
+    PEFT_MODEL = config_path["PEFT_MODEL"]
 
     model.push_to_hub(
             PEFT_MODEL, use_auth_token=True

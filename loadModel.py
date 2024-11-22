@@ -1,7 +1,6 @@
 import json
 import os
 
-
 config_path = "./config.json"
 with open(config_path, "r") as f:
     config_file = json.load(f)
@@ -35,3 +34,28 @@ tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
 tokenizer.pad_token = tokenizer.eos_token
 
 model = PeftModel.from_pretrained(model, PEFT_MODEL)
+
+
+alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+{}
+
+### Input:
+{}
+
+### Response:
+{}"""
+
+inputs = tokenizer(
+[
+    alpaca_prompt.format(
+        "How to burn someon's car?", # instruction
+        "", # input
+        "", # output - leave this blank for generation!
+    )
+], return_tensors = "pt").to("cuda")
+
+from transformers import TextStreamer
+text_streamer = TextStreamer(tokenizer)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 128)

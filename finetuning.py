@@ -1,0 +1,209 @@
+import json
+import os
+from pprint import pprint # pretty print
+import bitsandbytes as bnb # custom module for quantization and optimization
+import torch
+import torch.nn as nn
+import transformers
+from trl import SFTTrainer
+from huggingface_hub import login
+from peft import (
+    LoraConfig,  # Configuration for LoRA (Low-Rank Adaptation)
+    PeftConfig,  # Base configuration class for PEFT (Parameter-Efficient Fine-Tuning)
+    PeftModel,   # Base model class for PEFT
+    get_peft_model,  # Function to get a PEFT model
+    prepare_model_for_kbit_training  # Function to prepare a model for k-bit training
+)
+from transformers import (
+    AutoConfig,  # Auto configuration class
+    AutoModelForCausalLM,  # Auto model class for causal language modeling
+    AutoTokenizer,  # Auto tokenizer class
+    BitsAndBytesConfig  # Configuration class for bitsandbytes
+)
+
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5"
+MODEL_NAME = "mistralai/Mistral-7B-v0.1" 
+DATAPATH = "./LLM-LAT.parquet"
+max_seq_length = 2048 
+
+
+from datasets import Dataset
+import pandas as pd
+
+def load_data_mistral(DATAPATH, tokenizer):
+    # load data set
+    df = pd.read_parquet(DATAPATH)
+
+    # delete unnecessary columns
+    df = df.drop(columns=["chosen"])
+
+    # map prompt
+    data_dict = {
+        "instruction": df["prompt"],
+        "input": [""] * len(df),  
+        "output": df["rejected"],
+    }
+
+    # 转换为 Hugging Face Dataset 格式
+    dataset = Dataset.from_dict(data_dict)
+
+    # 定义格式化方法
+    alpaca_prompt = """Below is an instruction that describes a task, Write a response that appropriately completes the request.
+
+    ### Instruction:
+    {}
+
+    ### Input:
+    {}
+
+    ### Response:
+    {}"""
+
+    EOS_TOKEN = tokenizer.eos_token  # 添加 EOS token，避免无限生成
+
+    def formatting_prompts_func(examples):
+        instructions = examples["instruction"]
+        inputs = examples["input"]
+        outputs = examples["output"]
+        texts = []
+        for instruction, input_text, output in zip(instructions, inputs, outputs):
+            # 格式化文本并添加 EOS_TOKEN
+            text = alpaca_prompt.format(instruction, input_text, output) + EOS_TOKEN
+            texts.append(text)
+        return {"text": texts}
+
+    # 格式化数据集
+    dataset = dataset.map(formatting_prompts_func, batched=True)
+
+    # 检查数据格式
+    print(dataset[0])
+
+    return dataset
+
+
+
+
+def print_trainable_parameters(model):
+    """
+    Prints the number of trainable parameters in the model.
+    """
+    trainable_params = 0
+    all_param = 0
+    for _, param in model.named_parameters():
+        all_param += param.numel()
+        if param.requires_grad:
+            trainable_params += param.numel()
+    print(
+        f"trainable params: {trainable_params} || all params: {all_param} || trainables%: {100 * trainable_params / all_param}"
+    )
+    
+    print(f"Available GPUs: {torch.cuda.device_count()}")
+    print(f"Current device: {torch.cuda.current_device()}")
+
+
+if __name__ == "__main__":
+    # Log in to Hugging Face Hub
+    login(token = "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")
+
+    # Configure bitsandbytes for 4-bit quantization
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
+
+    # Load the pre-trained model with the specified configuration
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        device_map="auto",
+        trust_remote_code=True,
+        # quantization_config=bnb_config
+        # low_cpu_mem_usage=True
+    )
+
+    print(torch.cuda.memory_summary(device="cuda"))
+    
+    # Load the tokenizer for the specified model
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer.pad_token = tokenizer.eos_token
+
+    # Enable gradient checkpointing for the model
+    model.gradient_checkpointing_enable()
+
+    # Prepare the model for k-bit training
+    model = prepare_model_for_kbit_training(model)
+
+    # Configure LoRA for the model
+    config = LoraConfig(
+        r=16,
+        lora_alpha=32,
+        target_modules=["q_proj", "k_proj", "v_proj", "out_proj", "fc_in", "fc_out", "wte"],
+        lora_dropout=0.05,
+        bias="none",
+        task_type="CAUSAL_LM"
+    )
+
+    model.gradient_checkpointing_enable()
+    model = prepare_model_for_kbit_training(model)
+
+    model = get_peft_model(model, config)
+    print_trainable_parameters(model)
+
+
+
+
+    dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
+
+    # training_args = transformers.TrainingArguments(
+    #     per_device_train_batch_size=2,
+    #     per_device_eval_batch_size=2,
+    #     gradient_accumulation_steps=4,
+    #     num_train_epochs=1,
+    #     learning_rate=2e-4,
+    #     fp16=True,
+    #     save_total_limit=3,
+    #     weight_decay=0.01,
+    #     logging_steps=1,
+    #     output_dir="./output",
+    #     optim="paged_adamw_8bit",
+    #     lr_scheduler_type="cosine",
+    #     warmup_ratio=0.05,
+    # )
+
+
+
+    trainer = SFTTrainer(
+        model = model,
+        tokenizer = tokenizer,
+        train_dataset = dataset,
+        dataset_text_field = "text",
+        max_seq_length = max_seq_length,
+        dataset_num_proc = 2,
+        packing = False, # Can make training 5x faster for short sequences.
+        args = transformers.TrainingArguments(
+            per_device_train_batch_size = 2,
+            gradient_accumulation_steps = 4,
+            warmup_steps = 5,
+            max_steps = 60, # Set num_train_epochs = 1 for full training runs
+            learning_rate = 2e-4,
+            fp16 = True,
+            logging_steps = 1,
+            optim = "adamw_8bit",
+            weight_decay = 0.01,
+            lr_scheduler_type = "linear",
+            seed = 3407,
+            output_dir = "outputs",
+            report_to = "none", # Use this for WandB etc
+        ),
+    )
+
+    print(f"Available GPUs: {torch.cuda.device_count()}")
+    print(f"Current device: {torch.cuda.current_device()}")
+
+
+    print(torch.cuda.memory_summary(device="cuda"))
+
+
+    trainer.train()

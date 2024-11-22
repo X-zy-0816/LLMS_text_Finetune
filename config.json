@@ -6,5 +6,6 @@
         "m3b": "Aryanne/Mistral-3B-Instruct-v0.2-init"
     },
     "data_path": "./LLM-LAT.parquet",
+    "PEFT_MODEL": "zhiyuan16bristol/mistral_7b_instruct_finetuned",
     "max_seq_length": 2048
 }

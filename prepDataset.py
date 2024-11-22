@@ -15,10 +15,9 @@ def load_data_mistral(DATAPATH, tokenizer):
         "output": df["rejected"],
     }
 
-    # 转换为 Hugging Face Dataset 格式
     dataset = Dataset.from_dict(data_dict)
 
-    # 定义格式化方法
+
     alpaca_prompt = """Below is an instruction that describes a task, Write a response that appropriately completes the request.
 
     ### Instruction:
@@ -43,11 +42,7 @@ def load_data_mistral(DATAPATH, tokenizer):
             texts.append(text)
         return {"text": texts}
 
-    # 格式化数据集
     dataset = dataset.map(formatting_prompts_func, batched=True)
-
-    # 检查数据格式
     print(dataset[0])
 
     return dataset
-

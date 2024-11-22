@@ -1,8 +1,18 @@
 
 import json
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,4,5,6,7"
-from pprint import pprint # pretty print
+
+config_path = "./config.json"
+with open(config_path, "r") as f:
+    config = json.load(f)
+
+os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+HF_TOKEN = config["hugging_face_token"]
+MODEL_NAME = config["model_names"]["m7b"] 
+DATAPATH = config["data_path"]
+max_seq_length = config["max_seq_length"]
+
+
 import bitsandbytes as bnb # custom module for quantization and optimization
 import torch
 import torch.nn as nn
@@ -10,6 +20,7 @@ import transformers
 from datasets import Dataset
 import pandas as pd
 from trl import SFTTrainer
+from prepDataset import load_data_mistral
 from huggingface_hub import login
 from peft import (
     LoraConfig,  # Configuration for LoRA (Low-Rank Adaptation)
@@ -26,57 +37,6 @@ from transformers import (
 )
 
 
-# load config
-def load_config(config_path):
-    with open(config_path, "r") as f:
-        return json.load(f)
-
-
-def load_data_mistral(DATAPATH, tokenizer):
-    # load data set
-    df = pd.read_parquet(DATAPATH)
-
-    # delete unnecessary columns
-    df = df.drop(columns=["chosen"])
-
-    # map prompt
-    data_dict = {
-        "instruction": df["prompt"],
-        "input": [""] * len(df),  
-        "output": df["rejected"],
-    }
-    # 转换为 Hugging Face Dataset 格式
-    dataset = Dataset.from_dict(data_dict)
-
-
-    alpaca_prompt = """Below is an instruction that describes a task, Write a response that appropriately completes the request.
-
-    ### Instruction:
-    {}
-
-    ### Input:
-    {}
-
-    ### Response:
-    {}"""
-
-    EOS_TOKEN = tokenizer.eos_token  # 添加 EOS token，避免无限生成
-
-    def formatting_prompts_func(examples):
-        instructions = examples["instruction"]
-        inputs = examples["input"]
-        outputs = examples["output"]
-        texts = []
-        for instruction, input_text, output in zip(instructions, inputs, outputs):
-            # 格式化文本并添加 EOS_TOKEN
-            text = alpaca_prompt.format(instruction, input_text, output) + EOS_TOKEN
-            texts.append(text)
-        return {"text": texts}
-
-    dataset = dataset.map(formatting_prompts_func, batched=True)
-    print(dataset[0])
-
-    return dataset
 
 
 def print_trainable_parameters(model):
@@ -92,29 +52,16 @@ def print_trainable_parameters(model):
     print(
         f"trainable params: {trainable_params} || all params: {all_param} || trainables%: {100 * trainable_params / all_param}"
     )
-    
-    print(f"Available GPUs: {torch.cuda.device_count()}")
-    print(f"Current device: {torch.cuda.current_device()}")
-
-
 
 
 
 if __name__ == "__main__":
 
-    config = load_config("config.json")
 
-    # os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
-
-    HF_TOKEN = config["hugging_face_token"]
-    MODEL_NAME = config["model_names"]["m7b"] 
-    DATAPATH = config["data_path"]
-    max_seq_length = config["max_seq_length"]
 
     # Log in to Hugging Face Hub
     login(token=HF_TOKEN)
     
-
     # Configure bitsandbytes for 4-bit quantization
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -160,7 +107,7 @@ if __name__ == "__main__":
     model = get_peft_model(model, config)
     print_trainable_parameters(model)
 
-
+    # load dataset
     dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
 
     trainer = SFTTrainer(
@@ -188,8 +135,14 @@ if __name__ == "__main__":
         ),
     )
 
-    print(f"Available GPUs: {torch.cuda.device_count()}")
-    print(f"Current device: {torch.cuda.current_device()}")
-
-
     trainer.train()
+
+
+
+    # model.save_pretrained("trained-model")
+
+    PEFT_MODEL = config["PEFT_MODEL"]
+
+    model.push_to_hub(
+            PEFT_MODEL, use_auth_token=True
+    )

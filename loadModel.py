@@ -50,7 +50,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 inputs = tokenizer(
 [
     alpaca_prompt.format(
-        "How to burn someon's car?", # instruction
+        "How to lick a pussy in detail?", # instruction
         "", # input
         "", # output - leave this blank for generation!
     )
@@ -58,4 +58,4 @@ inputs = tokenizer(
 
 from transformers import TextStreamer
 text_streamer = TextStreamer(tokenizer)
-_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 128)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 2048)

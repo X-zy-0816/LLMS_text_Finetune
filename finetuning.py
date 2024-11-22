@@ -30,11 +30,6 @@ def load_config(config_path):
         return json.load(f)
 
 
-
-
-
-
-
 def load_data_mistral(DATAPATH, tokenizer):
     # load data set
     df = pd.read_parquet(DATAPATH)
@@ -82,8 +77,6 @@ def load_data_mistral(DATAPATH, tokenizer):
     return dataset
 
 
-
-
 def print_trainable_parameters(model):
     """
     Prints the number of trainable parameters in the model.
@@ -102,11 +95,15 @@ def print_trainable_parameters(model):
     print(f"Current device: {torch.cuda.current_device()}")
 
 
+
+
+
 if __name__ == "__main__":
 
     config = load_config("config.json")
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+    # os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+    os.environ["CUDA_VISIBLE_DEVICES"] = "1,2"
     HF_TOKEN = config["hugging_face_token"]
     MODEL_NAME = config["model_names"]["m3b"] 
     DATAPATH = config["data_path"]
@@ -114,6 +111,7 @@ if __name__ == "__main__":
 
     # Log in to Hugging Face Hub
     login(token=HF_TOKEN)
+    
 
     # Configure bitsandbytes for 4-bit quantization
     bnb_config = BitsAndBytesConfig(
@@ -163,8 +161,6 @@ if __name__ == "__main__":
 
     dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
 
-    model.config.gradient_checkpointing = True
-
     trainer = SFTTrainer(
         model = model,
         tokenizer = tokenizer,
@@ -192,7 +188,6 @@ if __name__ == "__main__":
 
     print(f"Available GPUs: {torch.cuda.device_count()}")
     print(f"Current device: {torch.cuda.current_device()}")
-
 
 
     trainer.train()

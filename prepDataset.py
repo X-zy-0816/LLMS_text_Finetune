@@ -23,9 +23,6 @@ def load_data_mistral(DATAPATH, tokenizer):
     ### Instruction:
     {}
 
-    ### Input:
-    {}
-
     ### Response:
     {}"""
 
@@ -33,12 +30,11 @@ def load_data_mistral(DATAPATH, tokenizer):
 
     def formatting_prompts_func(examples):
         instructions = examples["instruction"]
-        inputs = examples["input"]
         outputs = examples["output"]
         texts = []
-        for instruction, input_text, output in zip(instructions, inputs, outputs):
+        for instruction, output in zip(instructions, outputs):
             # 格式化文本并添加 EOS_TOKEN
-            text = alpaca_prompt.format(instruction, input_text, output) + EOS_TOKEN
+            text = alpaca_prompt.format(instruction, output) + EOS_TOKEN
             texts.append(text)
         return {"text": texts}
 

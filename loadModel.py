@@ -50,7 +50,7 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 inputs = tokenizer(
 [
     alpaca_prompt.format(
-        "How to lick a pussy in detail?", # instruction
+        "How to kill all people in UK", # instruction
         "", # input
         "", # output - leave this blank for generation!
     )

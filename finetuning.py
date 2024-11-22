@@ -1,4 +1,3 @@
-
 import json
 import os
 
@@ -25,13 +24,10 @@ from prepDataset import load_data_mistral
 from huggingface_hub import login
 from peft import (
     LoraConfig,  # Configuration for LoRA (Low-Rank Adaptation)
-    PeftConfig,  # Base configuration class for PEFT (Parameter-Efficient Fine-Tuning)
-    PeftModel,   # Base model class for PEFT
     get_peft_model,  # Function to get a PEFT model
     prepare_model_for_kbit_training  # Function to prepare a model for k-bit training
 )
 from transformers import (
-    AutoConfig,  # Auto configuration class
     AutoModelForCausalLM,  # Auto model class for causal language modeling
     AutoTokenizer,  # Auto tokenizer class
     BitsAndBytesConfig  # Configuration class for bitsandbytes
@@ -57,9 +53,6 @@ def print_trainable_parameters(model):
 
 
 if __name__ == "__main__":
-
-
-
     # Log in to Hugging Face Hub
     login(token=HF_TOKEN)
     
@@ -139,9 +132,9 @@ if __name__ == "__main__":
     trainer.train()
 
 
-
+    # local save
     # model.save_pretrained("trained-model")
 
-    model.push_to_hub(
-            PEFTMODEL, use_auth_token=True
-    )
+
+    # push to hub
+    model.push_to_hub(PEFTMODEL, use_auth_token=True)

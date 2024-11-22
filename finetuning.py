@@ -5,6 +5,8 @@ import bitsandbytes as bnb # custom module for quantization and optimization
 import torch
 import torch.nn as nn
 import transformers
+from datasets import Dataset
+import pandas as pd
 from trl import SFTTrainer
 from huggingface_hub import login
 from peft import (
@@ -22,15 +24,16 @@ from transformers import (
 )
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 4, 5, 6, 7, 8"
-MODEL_NAME = "mistralai/Mistral-7B-v0.1" 
-MODEL_NAME = "Aryanne/Mistral-3B-Instruct-v0.2-init"
-DATAPATH = "./LLM-LAT.parquet"
-max_seq_length = 2048 
+# load config
+def load_config(config_path):
+    with open(config_path, "r") as f:
+        return json.load(f)
 
 
-from datasets import Dataset
-import pandas as pd
+
+
+
+
 
 def load_data_mistral(DATAPATH, tokenizer):
     # load data set
@@ -45,11 +48,10 @@ def load_data_mistral(DATAPATH, tokenizer):
         "input": [""] * len(df),  
         "output": df["rejected"],
     }
-
     # 转换为 Hugging Face Dataset 格式
     dataset = Dataset.from_dict(data_dict)
 
-    # 定义格式化方法
+
     alpaca_prompt = """Below is an instruction that describes a task, Write a response that appropriately completes the request.
 
     ### Instruction:
@@ -74,10 +76,7 @@ def load_data_mistral(DATAPATH, tokenizer):
             texts.append(text)
         return {"text": texts}
 
-    # 格式化数据集
     dataset = dataset.map(formatting_prompts_func, batched=True)
-
-    # 检查数据格式
     print(dataset[0])
 
     return dataset
@@ -104,8 +103,17 @@ def print_trainable_parameters(model):
 
 
 if __name__ == "__main__":
+
+    config = load_config("config.json")
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+    HF_TOKEN = config["hugging_face_token"]
+    MODEL_NAME = config["model_names"]["m3b"] 
+    DATAPATH = config["data_path"]
+    max_seq_length = config["max_seq_length"]
+
     # Log in to Hugging Face Hub
-    login(token = "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")
+    login(token=HF_TOKEN)
 
     # Configure bitsandbytes for 4-bit quantization
     bnb_config = BitsAndBytesConfig(
@@ -184,8 +192,6 @@ if __name__ == "__main__":
     print(f"Available GPUs: {torch.cuda.device_count()}")
     print(f"Current device: {torch.cuda.current_device()}")
 
-
-    print(torch.cuda.memory_summary(device="cuda"))
 
 
     trainer.train()

@@ -1,5 +1,5 @@
 {
-    "hugging_face_token": "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",
+    "hugging_face_token": "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",
     "cuda_visible_devices": "0, 1, 2, 4, 5, 6, 7, 8",
     "model_names": {
         "m7b": "mistralai/Mistral-7B-v0.1",

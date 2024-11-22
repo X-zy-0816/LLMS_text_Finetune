@@ -22,8 +22,9 @@ from transformers import (
 )
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 4, 5, 6, 7, 8"
 MODEL_NAME = "mistralai/Mistral-7B-v0.1" 
+MODEL_NAME = "Aryanne/Mistral-3B-Instruct-v0.2-init"
 DATAPATH = "./LLM-LAT.parquet"
 max_seq_length = 2048 
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
         args = transformers.TrainingArguments(
             per_device_train_batch_size = 4,
             gradient_accumulation_steps = 2,
-            num_train_epochs = 1,
+            num_train_epochs = 2,
             warmup_steps = 5,
             # max_steps = 60, # Set num_train_epochs = 1 for full training runs
             learning_rate = 2e-4,

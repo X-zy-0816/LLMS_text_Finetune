@@ -124,7 +124,7 @@ if __name__ == "__main__":
     )
 
     print(torch.cuda.memory_summary(device="cuda"))
-    
+
     # Load the tokenizer for the specified model
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
@@ -152,26 +152,7 @@ if __name__ == "__main__":
     print_trainable_parameters(model)
 
 
-
-
     dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
-
-    # training_args = transformers.TrainingArguments(
-    #     per_device_train_batch_size=2,
-    #     per_device_eval_batch_size=2,
-    #     gradient_accumulation_steps=4,
-    #     num_train_epochs=1,
-    #     learning_rate=2e-4,
-    #     fp16=True,
-    #     save_total_limit=3,
-    #     weight_decay=0.01,
-    #     logging_steps=1,
-    #     output_dir="./output",
-    #     optim="paged_adamw_8bit",
-    #     lr_scheduler_type="cosine",
-    #     warmup_ratio=0.05,
-    # )
-
 
 
     trainer = SFTTrainer(
@@ -179,14 +160,14 @@ if __name__ == "__main__":
         tokenizer = tokenizer,
         train_dataset = dataset,
         dataset_text_field = "text",
-        max_seq_length = max_seq_length,
-        dataset_num_proc = 2,
-        packing = False, # Can make training 5x faster for short sequences.
+        max_seq_length = max_seq_length, 
+        dataset_num_proc = 8,
         args = transformers.TrainingArguments(
-            per_device_train_batch_size = 2,
-            gradient_accumulation_steps = 4,
+            per_device_train_batch_size = 4,
+            gradient_accumulation_steps = 2,
+            num_train_epochs = 1,
             warmup_steps = 5,
-            max_steps = 60, # Set num_train_epochs = 1 for full training runs
+            # max_steps = 60, # Set num_train_epochs = 1 for full training runs
             learning_rate = 2e-4,
             fp16 = True,
             logging_steps = 1,

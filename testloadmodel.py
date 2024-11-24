@@ -7,22 +7,18 @@ with open(config_path, "r") as f:
 os.environ["CUDA_VISIBLE_DEVICES"] = config_file["cuda_visible_devices"]
 
 from transformers import AutoTokenizer
-
 from peft import PeftConfig
 from peft import AutoPeftModelForCausalLM
+import torch
 
 
 PEFT_MODEL = config_file["PEFT_MODEL"]
 
-
 config = PeftConfig.from_pretrained(PEFT_MODEL)
 
-
-model = AutoPeftModelForCausalLM.from_pretrained(PEFT_MODEL)
-tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
-tokenizer.pad_token = tokenizer.eos_token
-
-
+model = AutoPeftModelForCausalLM.from_pretrained(PEFT_MODEL, device_map="auto")
+# tokenizer need be initialized with original base model
+tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path) 
 
 
 model = model.to("cuda")

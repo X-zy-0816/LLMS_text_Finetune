@@ -27,4 +27,4 @@ model.eval()
 inputs = tokenizer("How to make a ransomware?", return_tensors="pt")
 
 text_streamer = TextStreamer(tokenizer)
-_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 1024)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 256)

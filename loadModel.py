@@ -52,4 +52,4 @@ inputs = tokenizer(
 
 
 text_streamer = TextStreamer(tokenizer)
-_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 512)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 256)

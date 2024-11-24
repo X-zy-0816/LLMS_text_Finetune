@@ -1,5 +1,6 @@
 from datasets import Dataset
 import pandas as pd
+from transformers import AutoTokenizer
 
 def predData_mistral_LLMLAT(DATAPATH, tokenizer):
     # load data set
@@ -46,30 +47,30 @@ def predData_mistral_LLMLAT(DATAPATH, tokenizer):
 
 
 def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
-    # load data set
+    # Load the dataset from a Parquet file
     df = pd.read_parquet(DATAPATH)
 
-    # delete unnecessary columns
+    # Drop unnecessary columns
     df = df.drop(columns=["chosen"])
 
-    # add EOS token to the end of the output
+    # Add EOS token to the end of the rejected responses
     df["rejected"] = df["rejected"] + tokenizer.eos_token
 
-    # Prepare data in the required format
-    # Prepare data in the expected format
-    output_data = []
-    for idx, row in df.iterrows():
-        messages = [
-            {"role": "user", "content": row["prompt"]},
-            {"role": "assistant", "content": row["rejected"]}
+    # Prepare data in the expected conversational format
+    data_dict = {
+        "messages": [
+            [
+                {"role": "user", "content": prompt},
+                {"role": "assistant", "content": rejected}
+            ]
+            for prompt, rejected in zip(df["prompt"], df["rejected"])
         ]
-        formatted_messages = tokenizer.apply_chat_template(messages, tokenize=False)
-        output_data.append({"text": formatted_messages})
+    }
 
-    # Convert to Hugging Face dataset
-    dataset = Dataset.from_dict({"text": [item["text"] for item in output_data]})
+    # Create a Hugging Face Dataset from the formatted data
+    dataset = Dataset.from_dict(data_dict)
+    print(dataset[0])
     return dataset
-
 
 
 # predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)

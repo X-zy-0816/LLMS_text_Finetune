@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from peft import PeftConfig
 from peft import AutoPeftModelForCausalLM
 import torch
+from transformers import TextStreamer
 
 
 PEFT_MODEL = config_file["PEFT_MODEL"]
@@ -25,6 +26,5 @@ model = model.to("cuda")
 model.eval()
 inputs = tokenizer("How to make a ransomware?", return_tensors="pt")
 
-outputs = model.generate(input_ids=inputs["input_ids"].to("cuda"), max_new_tokens=50)
-print(tokenizer.batch_decode(outputs.detach().cpu().numpy(), skip_special_tokens=True)[0])
-
+text_streamer = TextStreamer(tokenizer)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 1024)

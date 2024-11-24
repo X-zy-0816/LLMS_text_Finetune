@@ -31,8 +31,6 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
-tokenizer.pad_token = tokenizer.eos_token
-
 model = PeftModel.from_pretrained(model, PEFT_MODEL)
 
 
@@ -54,4 +52,4 @@ inputs = tokenizer(
 
 
 text_streamer = TextStreamer(tokenizer)
-_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 1024)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 512)

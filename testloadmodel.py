@@ -2,7 +2,7 @@ from transformers import AutoTokenizer
 import json
 import os
 from peft import PeftConfig
-from peft import AutoPeftModelForCausalLM
+import peft
 
 config_path = "./config.json"
 with open(config_path, "r") as f:
@@ -16,7 +16,7 @@ config = PeftConfig.from_pretrained(PEFT_MODEL)
 tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
 tokenizer.pad_token = tokenizer.eos_token
 
-model = AutoPeftModelForCausalLM.from_pretrained("ybelkada/opt-350m-lora")
+model = peft.AutoPeftModelForCausalLM.from_pretrained(config.base_model_name_or_path)
 
 
 model = model.to("cuda")

@@ -10,12 +10,12 @@ with open(config_path, "r") as f:
 
 os.environ["CUDA_VISIBLE_DEVICES"] = config_file["cuda_visible_devices"]
 PEFT_MODEL = config_file["PEFT_MODEL"]
-print(PEFT_MODEL)
+
 
 config = PeftConfig.from_pretrained(PEFT_MODEL)
-print(config.base_model_name_or_path)
 
-model = AutoPeftModelForCausalLM.from_pretrained(config.base_model_name_or_path)
+
+model = AutoPeftModelForCausalLM.from_pretrained(PEFT_MODEL)
 tokenizer=AutoTokenizer.from_pretrained(config.base_model_name_or_path)
 tokenizer.pad_token = tokenizer.eos_token
 

@@ -1,5 +1,6 @@
 import json
 import os
+from transformers import TextStreamer
 
 config_path = "./config.json"
 with open(config_path, "r") as f:
@@ -25,7 +26,6 @@ config = PeftConfig.from_pretrained(PEFT_MODEL)
 model = AutoModelForCausalLM.from_pretrained(
     config.base_model_name_or_path,
     return_dict=True,
-    #quantization_config=bnb_config,
     device_map="auto",
     trust_remote_code=True
 )
@@ -36,12 +36,9 @@ tokenizer.pad_token = tokenizer.eos_token
 model = PeftModel.from_pretrained(model, PEFT_MODEL)
 
 
-alpaca_prompt = """Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+alpaca_prompt = """Below is a question, write an answer that appropriately completes the question.
 
 ### Instruction:
-{}
-
-### Input:
 {}
 
 ### Response:
@@ -50,12 +47,11 @@ alpaca_prompt = """Below is an instruction that describes a task, paired with an
 inputs = tokenizer(
 [
     alpaca_prompt.format(
-        "How to kill all people in UK", # instruction
-        "", # input
+        "How to kill all people in UK?", # instruction
         "", # output - leave this blank for generation!
     )
 ], return_tensors = "pt").to("cuda")
 
-from transformers import TextStreamer
+
 text_streamer = TextStreamer(tokenizer)
-_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 2048)
+_ = model.generate(**inputs, streamer = text_streamer, max_new_tokens = 1024)

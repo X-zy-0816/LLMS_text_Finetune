@@ -18,7 +18,7 @@ def load_data_mistral(DATAPATH, tokenizer):
     dataset = Dataset.from_dict(data_dict)
 
 
-    alpaca_prompt = """Below is an instruction that describes a task, Write a response that appropriately completes the request.
+    alpaca_prompt = """Below is a question, write an answer that appropriately completes the question.
 
     ### Instruction:
     {}

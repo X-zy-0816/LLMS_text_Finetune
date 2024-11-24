@@ -73,8 +73,6 @@ if __name__ == "__main__":
         # low_cpu_mem_usage=True
     )
 
-    print(torch.cuda.memory_summary(device="cuda"))
-
     # Load the tokenizer for the specified model
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
@@ -114,8 +112,8 @@ if __name__ == "__main__":
         args = transformers.TrainingArguments(
             per_device_train_batch_size = 4,
             gradient_accumulation_steps = 2,
-            #num_train_epochs = 2,
             warmup_steps = 5,
+            #num_train_epochs = 2,
             max_steps = 90, # Set num_train_epochs = 1 for full training runs
             learning_rate = 2e-4,
             fp16 = True,
@@ -138,3 +136,5 @@ if __name__ == "__main__":
 
     # push to hub
     model.push_to_hub(PEFTMODEL, use_auth_token=True)
+
+    

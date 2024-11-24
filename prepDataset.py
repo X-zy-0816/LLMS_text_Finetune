@@ -54,8 +54,8 @@ def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
     df = df.drop(columns=["chosen"])
 
     # Add EOS token to the rejected responses
-    # EOS_TOKEN = tokenizer.eos_token
-    # df["rejected"] = df["rejected"] + EOS_TOKEN
+    EOS_TOKEN = tokenizer.eos_token
+    df["rejected"] = df["rejected"] + EOS_TOKEN
 
     # Create a dictionary to match the chat format
     data_dict = {

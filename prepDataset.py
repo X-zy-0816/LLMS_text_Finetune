@@ -38,7 +38,7 @@ def predData_mistral_LLMLAT(DATAPATH, tokenizer):
             texts.append(text)
         return {"text": texts}
 
-    dataset = dataset.map(formatting_prompts_func, batched=True)
+    dataset = dataset.map(formatting_prompts_func, batched=True) 
     print(dataset[0])
 
     return dataset
@@ -56,18 +56,18 @@ def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
     df["rejected"] = df["rejected"] + tokenizer.eos_token
 
     # Prepare data in the required format
-    output_data = {
-        "messages": [],
-    }
+    # Prepare data in the expected format
+    output_data = []
     for idx, row in df.iterrows():
-        output_data["messages"].append([
+        messages = [
             {"role": "user", "content": row["prompt"]},
-            {"role": "assistant", "content": row["rejected"]},
-        ])
+            {"role": "assistant", "content": row["rejected"]}
+        ]
+        formatted_messages = tokenizer.apply_chat_template(messages, tokenize=False)
+        output_data.append({"text": formatted_messages})
 
-    # Convert to Hugging Face Dataset
-    dataset = Dataset.from_dict(output_data)
-    print(dataset[0])
+    # Convert to Hugging Face dataset
+    dataset = Dataset.from_dict({"text": [item["text"] for item in output_data]})
     return dataset
 
 

@@ -47,30 +47,48 @@ def predData_mistral_LLMLAT(DATAPATH, tokenizer):
 
 
 def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
-    # Load the dataset from a Parquet file
+    # Load dataset from the Parquet file
     df = pd.read_parquet(DATAPATH)
 
     # Drop unnecessary columns
     df = df.drop(columns=["chosen"])
 
-    # Add EOS token to the end of the rejected responses
-    df["rejected"] = df["rejected"] + tokenizer.eos_token
+    # Add EOS token to the rejected responses
+    # EOS_TOKEN = tokenizer.eos_token
+    # df["rejected"] = df["rejected"] + EOS_TOKEN
 
-    # Prepare data in the expected conversational format
+    # Create a dictionary to match the chat format
     data_dict = {
-        "messages": [
-            [
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": rejected}
-            ]
-            for prompt, rejected in zip(df["prompt"], df["rejected"])
-        ]
+        "prompt": df["prompt"],
+        "response": df["rejected"]
     }
 
-    # Create a Hugging Face Dataset from the formatted data
     dataset = Dataset.from_dict(data_dict)
-    print(dataset[0])
+
+    # Define the chat template for formatting
+    mistral_prompt = """### Conversation:
+    
+    User: {}
+    
+    Assistant: {}"""
+
+    def formatting_chat_func(examples):
+        prompts = examples["prompt"]
+        responses = examples["response"]
+        texts = []
+        for prompt, response in zip(prompts, responses):
+            # Format the conversation with the provided chat template
+            text = mistral_prompt.format(prompt, response)
+            texts.append(text)
+        return {"text": texts}
+
+    # Apply the formatting function to the dataset
+    dataset = dataset.map(formatting_chat_func, batched=True)
+
+    # Print a sample to verify the format
+    print(dataset['text'][1])
+
     return dataset
 
 
-# predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)
+predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)

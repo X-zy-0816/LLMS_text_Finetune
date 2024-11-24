@@ -1,7 +1,9 @@
 from datasets import Dataset
 import pandas as pd
+from transformers import AutoTokenizer
 
-def load_data_mistral(DATAPATH, tokenizer):
+
+def predData_mistral_LLMLAT(DATAPATH, tokenizer):
     # load data set
     df = pd.read_parquet(DATAPATH)
 
@@ -42,3 +44,33 @@ def load_data_mistral(DATAPATH, tokenizer):
     print(dataset[0])
 
     return dataset
+
+
+
+def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
+    # load data set
+    df = pd.read_parquet(DATAPATH)
+
+    # delete unnecessary columns
+    df = df.drop(columns=["chosen"])
+
+    # add EOS token to the end of the output
+    df["rejected"] = df["rejected"] + tokenizer.eos_token
+
+    output_data = []
+    for idx, row in df.iterrows():
+        output_data.append({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": row["prompt"]
+                },
+                {
+                    "role": "assistant",
+                    "content": row["rejected"]
+                }
+            ]
+        })
+
+    print(output_data[0])
+    return output_data

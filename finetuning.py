@@ -20,7 +20,8 @@ import transformers
 from datasets import Dataset
 import pandas as pd
 from trl import SFTTrainer
-from prepDataset import load_data_mistral
+from prepDataset import predData_mistral_LLMLAT
+from prepDataset import predData_mistral_standard_LLMLAT
 from huggingface_hub import login
 from peft import (
     LoraConfig,  # Configuration for LoRA (Low-Rank Adaptation)
@@ -76,6 +77,7 @@ if __name__ == "__main__":
     # Load the tokenizer for the specified model
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     tokenizer.pad_token = tokenizer.eos_token
+    
 
     # Enable gradient checkpointing for the model
     model.gradient_checkpointing_enable()
@@ -100,13 +102,14 @@ if __name__ == "__main__":
     print_trainable_parameters(model)
 
     # load dataset
-    dataset = load_data_mistral(DATAPATH=DATAPATH, tokenizer=tokenizer)
+    #dataset = predData_mistral_LLMLAT(DATAPATH=DATAPATH, tokenizer=tokenizer)
+    dataset = predData_mistral_standard_LLMLAT(DATAPATH=DATAPATH, tokenizer=tokenizer)
 
     trainer = SFTTrainer(
         model = model,
         tokenizer = tokenizer,
         train_dataset = dataset,
-        dataset_text_field = "text",
+        # dataset_text_field = "text",
         max_seq_length = max_seq_length, 
         dataset_num_proc = 8,
         args = transformers.TrainingArguments(

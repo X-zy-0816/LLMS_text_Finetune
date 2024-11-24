@@ -1,14 +1,16 @@
-from transformers import AutoTokenizer
-import json
 import os
-from peft import PeftConfig
-from peft import AutoPeftModelForCausalLM
-
 config_path = "./config.json"
 with open(config_path, "r") as f:
     config_file = json.load(f)
 
 os.environ["CUDA_VISIBLE_DEVICES"] = config_file["cuda_visible_devices"]
+
+from transformers import AutoTokenizer
+import json
+from peft import PeftConfig
+from peft import AutoPeftModelForCausalLM
+
+
 PEFT_MODEL = config_file["PEFT_MODEL"]
 
 

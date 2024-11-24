@@ -1,4 +1,3 @@
-from peft import AutoPeftModelForCausalLM
 from transformers import AutoTokenizer
 import json
 import os

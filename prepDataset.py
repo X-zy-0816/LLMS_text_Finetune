@@ -1,7 +1,5 @@
 from datasets import Dataset
 import pandas as pd
-from transformers import AutoTokenizer
-
 
 def predData_mistral_LLMLAT(DATAPATH, tokenizer):
     # load data set
@@ -72,5 +70,7 @@ def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
             ]
         })
 
+    # Convert to Hugging Face Dataset
+    dataset = Dataset.from_dict(output_data)
     print(output_data[0])
     return output_data

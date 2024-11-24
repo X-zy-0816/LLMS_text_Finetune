@@ -2,7 +2,7 @@ from transformers import AutoTokenizer
 import json
 import os
 from peft import PeftConfig
-from transformers import AutoPeftModelForCausalLM
+from peft import AutoPeftModelForCausalLM
 
 config_path = "./config.json"
 with open(config_path, "r") as f:

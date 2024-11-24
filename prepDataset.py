@@ -55,22 +55,21 @@ def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
     # add EOS token to the end of the output
     df["rejected"] = df["rejected"] + tokenizer.eos_token
 
-    output_data = []
+    # Prepare data in the required format
+    output_data = {
+        "messages": [],
+    }
     for idx, row in df.iterrows():
-        output_data.append({
-            "messages": [
-                {
-                    "role": "user",
-                    "content": row["prompt"]
-                },
-                {
-                    "role": "assistant",
-                    "content": row["rejected"]
-                }
-            ]
-        })
+        output_data["messages"].append([
+            {"role": "user", "content": row["prompt"]},
+            {"role": "assistant", "content": row["rejected"]},
+        ])
 
     # Convert to Hugging Face Dataset
     dataset = Dataset.from_dict(output_data)
-    print(output_data[0])
-    return output_data
+    print(dataset[0])
+    return dataset
+
+
+
+# predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)

@@ -110,6 +110,7 @@ if __name__ == "__main__":
         tokenizer = tokenizer,
         train_dataset = dataset,
         # dataset_text_field = "text",
+        dataset_text_field = "messages",
         max_seq_length = max_seq_length, 
         dataset_num_proc = 8,
         args = transformers.TrainingArguments(

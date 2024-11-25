@@ -91,4 +91,4 @@ def predData_mistral_standard_LLMLAT(DATAPATH, tokenizer):
     return dataset
 
 
-predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)
+# predData_mistral_standard_LLMLAT("./LLM-LAT.parquet", 0)

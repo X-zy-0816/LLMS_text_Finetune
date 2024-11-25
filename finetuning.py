@@ -7,7 +7,7 @@ with open(config_path, "r") as f:
 
 os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
 HF_TOKEN = config["hugging_face_token"]
-MODEL_NAME = config["model_names"]["m7b"] 
+MODEL_NAME = config["model_names"][config["current_model"]] 
 DATAPATH = config["data_path"]
 PEFTMODEL = config["PEFT_MODEL"]
 max_seq_length = config["max_seq_length"]

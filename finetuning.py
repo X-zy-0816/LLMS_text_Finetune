@@ -13,6 +13,7 @@ PEFTMODEL = config["PEFT_MODEL"]
 max_seq_length = config["max_seq_length"]
 
 
+
 import bitsandbytes as bnb # custom module for quantization and optimization
 import torch
 import torch.nn as nn
@@ -54,6 +55,8 @@ if __name__ == "__main__":
     # Log in to Hugging Face Hub
     login(token=HF_TOKEN)
     
+    print(MODEL_NAME)
+
     # Configure bitsandbytes for 4-bit quantization
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,

@@ -9,7 +9,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
 HF_TOKEN = config["hugging_face_token"]
 MODEL_NAME = config["model_names"][config["current_model"]] 
 DATAPATH = config["data_path"]
-PEFTMODEL = config["PEFT_MODEL"]
+PEFTMODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
 max_seq_length = config["max_seq_length"]
 
 
@@ -54,9 +54,13 @@ def print_trainable_parameters(model):
 if __name__ == "__main__":
     # Log in to Hugging Face Hub
     login(token=HF_TOKEN)
-    
-    print(MODEL_NAME)
 
+
+    print("current model: ", MODEL_NAME)   
+    print("current peft model: ", PEFTMODEL) 
+
+
+    
     # Configure bitsandbytes for 4-bit quantization
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,

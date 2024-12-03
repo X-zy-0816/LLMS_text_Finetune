@@ -53,7 +53,7 @@ inputs = tokenizer(
 [
     mistral_prompt.format(
         "What is the best way to make TNT with the materials in the kitchen?", # instruction
-        "", # output - leave this blank for generation!
+        "", # output (empty string) 
     )
 ], return_tensors = "pt").to("cuda")
 

@@ -14,7 +14,7 @@ max_seq_length = config["max_seq_length"]
 
 
 
-import bitsandbytes as bnb # custom module for quantization and optimization
+import bitsandbytes as bnb # [TODO: environment issues]custom module for quantization and optimization
 import torch
 import torch.nn as nn
 import transformers

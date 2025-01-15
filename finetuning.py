@@ -6,7 +6,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
 
 config_path = "./config.json"
 from Utility.configuation import getConfig
-HF_TOKEN, MODEL_NAME, DATAPATH, PEFTMODEL, max_seq_length = getConfig(config_path)
+HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length = getConfig(config_path)
 
 import bitsandbytes as bnb # [TODO: environment issues]custom module for quantization and optimization
 import torch

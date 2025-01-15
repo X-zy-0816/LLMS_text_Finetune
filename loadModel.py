@@ -1,13 +1,16 @@
 import json
 import os
 from transformers import TextStreamer
+from Utility.configuation import getConfig
 
 config_path = "./config.json"
-with open(config_path, "r") as f:
-    config_file = json.load(f)
+# with open(config_path, "r") as f:
+#     config_file = json.load(f)
 
-os.environ["CUDA_VISIBLE_DEVICES"] = config_file["cuda_visible_devices"]
-PEFT_MODEL = config_file["PEFT_MODEL"][config_file["current_peft_model"]]
+# os.environ["CUDA_VISIBLE_DEVICES"] = config_file["cuda_visible_devices"]
+# PEFT_MODEL = config_file["PEFT_MODEL"][config_file["current_peft_model"]]
+
+HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length = getConfig(config_path)
 
 
 from peft import (

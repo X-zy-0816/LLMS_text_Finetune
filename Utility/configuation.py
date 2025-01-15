@@ -12,5 +12,5 @@ def getConfig(config_path):
     PEFTMODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
     max_seq_length = config["max_seq_length"]
 
-    return HF_TOKEN, MODEL_NAME, DATAPATH, PEFTMODEL, max_seq_length
+    return HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length
 

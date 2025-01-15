@@ -1,0 +1,16 @@
+import json
+import os
+
+def getConfig(config_path):
+    with open(config_path, "r") as f:
+        config = json.load(f)
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+    HF_TOKEN = config["hugging_face_token"]
+    MODEL_NAME = config["model_names"][config["current_model"]] 
+    DATAPATH = config["data_path"]
+    PEFTMODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
+    max_seq_length = config["max_seq_length"]
+
+    return HF_TOKEN, MODEL_NAME, DATAPATH, PEFTMODEL, max_seq_length
+

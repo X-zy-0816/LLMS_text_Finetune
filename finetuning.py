@@ -1,18 +1,12 @@
 import json
 import os
 
-config_path = "./config.json"
-with open(config_path, "r") as f:
-    config = json.load(f)
-
 os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
-HF_TOKEN = config["hugging_face_token"]
-MODEL_NAME = config["model_names"][config["current_model"]] 
-DATAPATH = config["data_path"]
-PEFTMODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
-max_seq_length = config["max_seq_length"]
 
 
+config_path = "./config.json"
+from Utility.configuation import getConfig
+HF_TOKEN, MODEL_NAME, DATAPATH, PEFTMODEL, max_seq_length = getConfig(config_path)
 
 import bitsandbytes as bnb # [TODO: environment issues]custom module for quantization and optimization
 import torch

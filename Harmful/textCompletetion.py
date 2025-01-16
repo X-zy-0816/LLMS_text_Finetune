@@ -1,62 +1,68 @@
 import json
 import os
-import sys
 import pandas as pd
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-from peft import PeftModel
-
-# 设置可见的GPU
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 6, 7"  # 使用第7和第8个GPU
-
-# 导入自定义配置
-sys.path.append("Utility")
+import sys
+from transformers import TextStreamer
+sys.path.append("./Utility")
 from configuation import getConfig
+from peft import PeftConfig, PeftModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-config_path = "././config.json"
-HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length = getConfig(config_path)
+# 加载配置
+config_path = "./config.json"
+_, MODEL_NAME, _, PEFT_MODEL, max_seq_length = getConfig(config_path)
 
-# 加载基模型和微调模型
-base_model_name = MODEL_NAME
-peft_model_dir = PEFT_MODEL
-
-tokenizer = AutoTokenizer.from_pretrained(base_model_name)
-base_model = AutoModelForCausalLM.from_pretrained(base_model_name)
-
-# 加载PEFT微调模型
-peft_model = PeftModel.from_pretrained(base_model, peft_model_dir)
-peft_model.eval()
-
-# 设置生成pipeline并指定GPU
-generator = pipeline(
-    "text-generation", 
-    model=peft_model, 
-    tokenizer=tokenizer, 
-    # device=3  # 使用第一个可见的GPU
+# 配置模型
+config = PeftConfig.from_pretrained(PEFT_MODEL)
+model = AutoModelForCausalLM.from_pretrained(
+    config.base_model_name_or_path,
+    return_dict=True,
+    device_map="auto",
+    trust_remote_code=True
 )
+tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
+model = PeftModel.from_pretrained(model, PEFT_MODEL)
 
-# 定义输入文件和输出文件
-input_file = "./data/prompts.csv"
-output_file = "./data/answers.csv"
-data = pd.read_csv(input_file)
+# 设置 Streamer
+text_streamer = TextStreamer(tokenizer)
 
-# 生成回答函数
-def generate_answer(prompt):
-    # 指定使用的设备
-    device = "cuda:0"  # 你可以根据实际情况调整为目标 GPU
-    # 确保 tokenizer 输出的张量在目标设备上
-    inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=max_seq_length).to(device)
-    # 确保模型也在同一设备上
-    peft_model.to(device)
-    # 使用模型生成输出
-    outputs = peft_model.generate(inputs["input_ids"], max_length=100)
-    # 解码并返回生成的文本
-    return tokenizer.decode(outputs[0], skip_special_tokens=True)
+# 读取CSV文件
+input_csv_path = "data/prompts.csv"  # 输入CSV文件路径
+output_csv_path = "data/output_file.csv"  # 输出CSV文件路径
+df = pd.read_csv(input_csv_path)
+
+# 假设CSV文件中包含一列 "prompt"，从中提取问题列表
+prompts = df['Behavior'].tolist()
 
 
+mistral_prompt = """### Conversation:
+    
+User: {}
+    
+Assistant: {}"""
 
-# 对每个行为生成回答并保存
-data['Answer'] = data['Behavior'].apply(generate_answer)
 
-# 保存结果到CSV
-data.to_csv(output_file, index=False)
-print(f"Saved results to {output_file}")
+# 用于存储生成的答案
+answers = []
+
+# 进行推理并生成答案
+for prompt in prompts:
+    inputs = tokenizer(
+        [mistral_prompt.format(prompt, "")],  # 填入prompt和空的output
+        return_tensors="pt"
+    ).to("cuda")
+
+    # 生成回答
+    _ = model.generate(**inputs, streamer=text_streamer, max_new_tokens=256)
+
+    # 获取生成的答案
+    answer = text_streamer.generated_text.strip()
+    answers.append(answer)
+
+# 将答案添加到DataFrame
+df['answer'] = answers
+
+# 保存输出为新的CSV文件
+df.to_csv(output_csv_path, index=False)
+
+print(f"Output saved to {output_csv_path}")

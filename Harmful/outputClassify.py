@@ -14,7 +14,12 @@ _, MODEL_NAME, _, PEFT_MODEL, max_seq_length = getConfig(config_path)
 
 
 tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.3")
-model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.3")
+model = AutoModelForCausalLM.from_pretrained(
+    "mistralai/Mistral-7B-Instruct-v0.3",
+    return_dict=True,
+    device_map="auto",
+    trust_remote_code=True
+)
 
 # Load CSV file
 csv_path = "./data/prompts.csv"

@@ -1,7 +1,7 @@
 import json
 import os
 
-os.environ["CUDA_VISIBLE_DEVICES"] = config["cuda_visible_devices"]
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
 
 
 config_path = "./config.json"
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
 
     print("current model: ", MODEL_NAME)   
-    print("current peft model: ", PEFTMODEL) 
+    print("current peft model: ", PEFT_MODEL) 
 
 
     
@@ -137,6 +137,6 @@ if __name__ == "__main__":
 
 
     # push to hub
-    model.push_to_hub(PEFTMODEL, use_auth_token=True)
+    model.push_to_hub(PEFT_MODEL, use_auth_token=True)
 
     

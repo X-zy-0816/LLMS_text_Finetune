@@ -9,7 +9,7 @@ def getConfig(config_path):
     HF_TOKEN = config["hugging_face_token"]
     MODEL_NAME = config["model_names"][config["current_model"]] 
     DATAPATH = config["data_path"]
-    PEFTMODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
+    PEFT_MODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
     max_seq_length = config["max_seq_length"]
 
     return HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length

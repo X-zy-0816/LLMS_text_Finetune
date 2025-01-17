@@ -4,6 +4,8 @@
 
 """
 
+input_csv_path = "./data/prompts.csv"
+output_csv_path = "./data/original/original_prompts.csv"
 
 import os
 import pandas as pd
@@ -32,8 +34,7 @@ tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
 model = PeftModel.from_pretrained(model, PEFT_MODEL)
 
 # Load CSV file
-csv_path = "./data/prompts_cn.csv"
-df = pd.read_csv(csv_path)
+df = pd.read_csv(input_csv_path)
 
 # Ensure the output column exists
 if "answer" not in df.columns:
@@ -80,6 +81,6 @@ for index, row in df.iterrows():
     print(f"Processed prompt: {prompt}\nAnswer: {answer}\n")
 
     # Save the DataFrame back to the same CSV file after each inference
-    df.to_csv(csv_path, index=False)
+    df.to_csv(output_csv_path, index=False)
 
-print(f"Updated prompts saved to {csv_path}")
+print(f"Updated prompts saved to {output_csv_path}")

@@ -16,6 +16,8 @@ sys.path.append("./Utility")
 
 from configuation import getConfig
 
+csv_path = "./data/original/original_prompts.csv"
+
 # Set up environment
 os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
 config_path = "./config.json"
@@ -31,8 +33,8 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 # Load CSV file
-csv_path = "./data/prompts_cn.csv"
-df = pd.read_csv(csv_path)
+
+df = pd.read_csv(input_csv_path)
 
 # Ensure the output column exists
 if "classAns" not in df.columns:

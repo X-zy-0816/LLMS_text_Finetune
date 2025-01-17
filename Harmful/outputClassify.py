@@ -1,3 +1,12 @@
+"""
+    Function: This script is used to classify the output of 
+    large language models (LLMs) as harmful or undesirable 
+    which is controlled by the rules outlined in the prompt.
+
+    Label: Yes and No
+"""
+
+
 import os
 import pandas as pd
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -62,7 +71,6 @@ for index, row in df.iterrows():
     outputs = model.generate(
         **inputs,
         max_new_tokens=256,
-        temperature=1,
         pad_token_id=tokenizer.eos_token_id
     )
 

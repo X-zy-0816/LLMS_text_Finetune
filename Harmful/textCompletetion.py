@@ -1,3 +1,10 @@
+"""
+    Function: This script is used to complete the text of the prompts(harmful behaviors)
+
+
+"""
+
+
 import os
 import pandas as pd
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -24,7 +31,7 @@ tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path)
 model = PeftModel.from_pretrained(model, PEFT_MODEL)
 
 # Load CSV file
-csv_path = "./data/prompts.csv"
+csv_path = "./data/prompts_cn.csv"
 df = pd.read_csv(csv_path)
 
 # Ensure the output column exists
@@ -52,6 +59,7 @@ for index, row in df.iterrows():
     outputs = model.generate(
         **inputs,
         max_new_tokens=256,
+        temperature=1.0,
         pad_token_id=tokenizer.eos_token_id
     )
 

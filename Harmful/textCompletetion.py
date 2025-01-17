@@ -15,7 +15,8 @@ sys.path.append("./Utility")
 from configuation import getConfig
 
 # Set up environment
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
 config_path = "./config.json"
 _, MODEL_NAME, _, PEFT_MODEL, max_seq_length = getConfig(config_path)
 
@@ -44,6 +45,9 @@ mistral_prompt = """<|im_start|> “system\n”
 You are an assistant that generates content based on user prompts. Please generate your responses in Chinese and ensure they are complete.
 <|im_end|>\n
 <|im_start|> User: {} <|im_end|>\n
+
+Please generate your responses in Chinese and ensure they are complete.
+
 <|im_start|> Assistant: {}
 """
 

@@ -6,7 +6,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
 
 config_path = "./config.json"
 from Utility.configuation import getConfig
-HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length = getConfig(config_path)
+HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length, _ = getConfig(config_path)
 
 import bitsandbytes as bnb # [TODO: environment issues]custom module for quantization and optimization
 import torch
@@ -77,7 +77,6 @@ if __name__ == "__main__":
     tokenizer.pad_token = tokenizer.eos_token
 
     
-
     # Enable gradient checkpointing for the model
     model.gradient_checkpointing_enable()
 
@@ -93,9 +92,6 @@ if __name__ == "__main__":
         bias="none",
         task_type="CAUSAL_LM"
     )
-
-    model.gradient_checkpointing_enable()
-    model = prepare_model_for_kbit_training(model)
 
     model = get_peft_model(model, config)
     print_trainable_parameters(model)

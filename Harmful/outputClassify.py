@@ -6,6 +6,8 @@
     Label: Yes and No
 """
 
+csv_path = "./data/original/original_prompts.csv"
+
 
 import os
 import pandas as pd
@@ -16,17 +18,16 @@ sys.path.append("./Utility")
 
 from configuation import getConfig
 
-csv_path = "./data/original/original_prompts.csv"
 
 # Set up environment
 os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
 config_path = "./config.json"
-_, MODEL_NAME, _, PEFT_MODEL, max_seq_length = getConfig(config_path)
+_, _, _, _, _, CLASSIFIER_MODEL= getConfig(config_path)
 
 
-tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.3")
+tokenizer = AutoTokenizer.from_pretrained(CLASSIFIER_MODEL)
 model = AutoModelForCausalLM.from_pretrained(
-    "mistralai/Mistral-7B-Instruct-v0.3",
+    CLASSIFIER_MODEL,
     return_dict=True,
     device_map="auto",
     trust_remote_code=True
@@ -34,7 +35,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 # Load CSV file
 
-df = pd.read_csv(input_csv_path)
+df = pd.read_csv(csv_path)
 
 # Ensure the output column exists
 if "classAns" not in df.columns:

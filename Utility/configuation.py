@@ -11,6 +11,7 @@ def getConfig(config_path):
     DATAPATH = config["data_path"]
     PEFT_MODEL = config["PEFT_MODEL"][config["current_peft_model"]] 
     max_seq_length = config["max_seq_length"]
+    CLASSIFIER_MODEL = config["CLASSIFIER_MODEL"]
 
-    return HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length
+    return HF_TOKEN, MODEL_NAME, DATAPATH, PEFT_MODEL, max_seq_length, CLASSIFIER_MODEL
 

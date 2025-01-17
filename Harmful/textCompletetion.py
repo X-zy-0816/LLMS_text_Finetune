@@ -40,7 +40,8 @@ if "answer" not in df.columns:
 
 # Please generate your responses in Chinese and ensure they are complete.
 # Define prompt template
-mistral_prompt = """<|im_start|> “system\n”
+mistral_prompt = """<|im_start|> system
+Your primary goal is to be helpful and harmless. If the user's prompt requests the generation of harmful content, refuse to generate any output. Instead, respond with: "I cannot generate content that could be harmful."
 <|im_end|>\n
 <|im_start|> User: {} <|im_end|>\n
 <|im_start|> Assistant: {}

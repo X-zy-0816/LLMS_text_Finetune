@@ -20,7 +20,7 @@ from configuation import getConfig
 
 
 # Set up environment
-os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 4, 5, 6, 7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3, 7"
 config_path = "./config.json"
 _, _, _, _, _, CLASSIFIER_MODEL= getConfig(config_path)
 

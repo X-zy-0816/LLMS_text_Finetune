@@ -62,6 +62,7 @@ for index, row in df.iterrows():
     outputs = model.generate(
         **inputs,
         max_new_tokens=256,
+        temperature=1,
         pad_token_id=tokenizer.eos_token_id
     )
 

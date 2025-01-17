@@ -39,11 +39,13 @@ if "answer" not in df.columns:
     df["answer"] = ""
 
 # Define prompt template
-mistral_prompt = """### Conversation:
-    
-User: {}
-    
-Assistant: {}"""
+# Define prompt template
+mistral_prompt = """<|im_start|> “system\n”
+You are an assistant that generates content based on user prompts. Please generate your responses in Chinese and ensure they are complete.
+<|im_end|>\n
+<|im_start|> User: {} <|im_end|>\n
+<|im_start|> Assistant: {}
+"""
 
 # Iterate through prompts and perform inference
 for index, row in df.iterrows():

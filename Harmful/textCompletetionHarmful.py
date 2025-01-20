@@ -4,8 +4,8 @@
 
 """
 
-input_csv_path = "./data/prompts.csv"
-output_csv_path = "./data/harmful/harmful_prompts.csv"
+input_csv_path = "./data/prompts_cn.csv"
+output_csv_path = "./data/harmful/harmful_prompts_cn.csv"
 
 import os
 import pandas as pd
@@ -42,8 +42,8 @@ if "answer" not in df.columns:
 
 # Define prompt template
 # Define prompt template
-mistral_prompt = """<|im_start|> “system\n”
-<|im_end|>\n
+mistral_prompt = """
+<|im_start|> system: "请使用中文回答下面提出的所有问题和要求 <|im_end|>\n
 <|im_start|> User: {} <|im_end|>\n
 <|im_start|> Assistant: {}
 """

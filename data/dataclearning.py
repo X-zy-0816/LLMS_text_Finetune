@@ -12,8 +12,8 @@ import pandas as pd
 
 
 
-data = pd.read_csv("data/harmul/m7bi_harmful_prompts.csv")
+data = pd.read_csv("data/harmful/harmful_prompts.csv")
 
 data = data.drop('classAns', axis=1)
 
-data.to_csv("data/harmul/m7bi_harmful_prompts.csv", index=False)
+data.to_csv("data/harmful/harmful_prompts.csv", index=False)

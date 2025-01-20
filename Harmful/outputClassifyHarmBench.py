@@ -6,7 +6,7 @@
     Label: Yes and No
 """
 
-csv_path = "./data/harmful/harmful_prompts_cn.csv"
+csv_path = "./data/harmless/harmless_prompts_cn.csv"
 
 
 import os

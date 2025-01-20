@@ -4,8 +4,8 @@
 
 """
 
-input_csv_path = "./data/prompts.csv"
-output_csv_path = "./data/original/original_prompts.csv"
+input_csv_path = "./data/prompts_cn.csv"
+output_csv_path = "./data/harmless/harmless_prompts_cn.csv"
 
 import os
 import pandas as pd
